@@ -1,0 +1,89 @@
+version: "3.8"
+services:
+  consul:
+    image: consul:1.9.5
+    ports:
+      - "8500:8500"
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    networks:
+      - consul-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:14.0.0
+    ports:
+      - "8080:8080"
+    depends_on:
+      - consul
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+    networks:
+      - consul-network
+
+  basket_service:
+    image: wypychmat/ms-basket-service:0.0.1-SNAPSHOT
+    depends_on:
+      - consul
+      - keycloak
+    environment:
+      - KEYCLOAK_HOST=keycloak
+      - CONSUL_HOST=consul
+    restart: always
+    networks:
+      - consul-network
+
+  client_service:
+    image: wypychmat/ms-client-service:0.0.1-SNAPSHOT
+    depends_on:
+      - consul
+      - keycloak
+    environment:
+      - KEYCLOAK_HOST=keycloak
+      - CONSUL_HOST=consul
+    restart: always
+    networks:
+      - consul-network
+
+  gateway:
+    image: wypychmat/ms-gateway:0.0.1-SNAPSHOT
+    depends_on:
+      - consul
+      - keycloak
+    environment:
+      - KEYCLOAK_HOST=keycloak
+      - CONSUL_HOST=consul
+    restart: always
+    ports:
+      - "8081:8081"
+    networks:
+      - consul-network
+
+  menu_service:
+    image: wypychmat/ms-menu-service:0.0.1-SNAPSHOT
+    depends_on:
+      - consul
+      - keycloak
+    environment:
+      - KEYCLOAK_HOST=keycloak
+      - CONSUL_HOST=consul
+    restart: always
+    networks:
+      - consul-network
+
+  order_service:
+    image: wypychmat/ms-order-service:0.0.1-SNAPSHOT
+    depends_on:
+      - consul
+      - keycloak
+    environment:
+      - KEYCLOAK_HOST=keycloak
+      - CONSUL_HOST=consul
+    restart: always
+    networks:
+      - consul-network
+
+networks:
+  consul-network:
+
+

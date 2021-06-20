@@ -1,0 +1,48 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: gateway
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: 8500
+      discovery:
+        tags: ${spring.application.name}
+        instanceId: ${spring.application.name}:${random.value}
+        health-check-interval: 3s
+        health-check-timeout: 1s
+        health-check-critical-timeout: 1s
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: basket-service
+          uri: lb://basket-service
+          predicates:
+            - Path=/basket/**
+          filters:
+            - RewritePath=/basket/(?<path>.*), /$\{path}
+            - RemoveRequestHeader=Cookie
+        - id: client-service
+          uri: lb://client-service
+          predicates:
+            - Path=/client/**
+          filters:
+            - RewritePath=/client/(?<path>.*), /$\{path}
+            - RemoveRequestHeader=Cookie
+        - id: menu-service
+          uri: lb://menu-service
+          predicates:
+            - Path=/menu/**
+          filters:
+            - RewritePath=/menu/(?<path>.*), /$\{path}
+            - RemoveRequestHeader=Cookie
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/order/**
+          filters:
+            - RewritePath=/order/(?<path>.*), /$\{path}
+            - RemoveRequestHeader=Cookie

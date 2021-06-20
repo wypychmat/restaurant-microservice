@@ -1,0 +1,20 @@
+server:
+    port: 8000
+spring:
+    application:
+        name: basket-service
+    cloud:
+        consul:
+            discovery:
+                health-check-critical-timeout: 1s
+                health-check-interval: 3s
+                health-check-timeout: 1s
+                instanceId: ${spring.application.name}:${random.value}
+                tags: ${spring.application.name}
+            host: ${CONSUL_HOST:localhost}
+            port: 8500
+    security:
+        oauth2:
+            resourceserver:
+                jwt:
+                    jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:8080/auth/realms/cloud/protocol/openid-connect/certs
